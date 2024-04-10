@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Select from "react-select";
 import axios from "axios";
 import { Private_Key, Url } from "@/api";
@@ -10,88 +10,97 @@ interface Category {
   children?: Category[] | null;
 }
 
+interface SubCatOption {
+  id: number;
+  name: string;
+  options?: Option[];
+}
+
 interface Option {
   id: number;
   name: string;
 }
 
-export default function Home() {
+export default function Home(): JSX.Element {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<Category[]>([]);
-  const [options, setOptions] = useState<Option[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
-  const [selectedSubCategories, setSelectedSubCategories] = useState<
-    Category[]
-  >([]);
-  const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
-
   const [subCatData, setSubCatData] = useState<Category[] | null>(null);
   const [subCatOptions, setSubCatOptions] = useState<SubCatOption[]>([]);
-  const [additionalInputValue, setAdditionalInputValue] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedSubCategories, setSelectedSubCategories] = useState<Category[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<SubCatOption[]>([]);
 
-  // callbacks
-  const filterOptions = useCallback(
-    (options: Category[], { inputValue }: { inputValue: string }) =>
-      options.filter((option) =>
-        option.name.toLowerCase().includes(inputValue.toLowerCase())
-      ),
-    []
-  );
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await axios.get(`${Url}/get_categories`, {
+          headers: {
+            "private-key": Private_Key,
+          },
+        });
+        const { data } = response.data;
+        setCategories(data.categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+
+    fetchCategories();
+  }, []);
 
   const handleAutocompleteChange = useCallback(
-    (event: React.SyntheticEvent, value: Category | null) => {
+    (value: Category | null) => {
       if (value && Array.isArray(value.children)) {
+        setSelectedCategory(value);
         setSubCatData(value.children);
+        setSelectedSubCategories([]);
+        setSelectedOptions([]);
       } else {
-        setSubCatData([]);
+        setSelectedCategory(null);
+        setSubCatData(null);
+        setSelectedSubCategories([]);
+        setSelectedOptions([]);
       }
     },
     []
   );
 
   const handleSubCategoryChange = useCallback(
-    (event: React.SyntheticEvent, value: Category | null) => {
-      setSubCatOptions([]);
+    async (value: Category | null) => {
       if (value) {
-        console.log(value?.id);
-        axios
-          .get(`${Main_Url}/properties?cat=${value?.id}`, {
+        try {
+          const response = await axios.get<{ data: SubCatOption[] }>(`${Url}/properties?cat=${value.id}`, {
             headers: {
               "private-key": Private_Key,
             },
-          })
-          .then((res) => {
-            setSubCatOptions(
-              res?.data?.data.map((category: any) => ({
-                ...category,
-                options: [
-                  ...category.options,
-                  {
-                    id: new Date().getTime(),
-                    name: "other",
-                  },
-                ],
-              }))
-            );
-          })
-          .catch((error) => {
-            console.error("Error fetching data:", error);
           });
+          const { data } = response.data;
+          setSubCatOptions(
+            data.map((category: SubCatOption) => ({
+              ...category,
+              options: [
+                ...category.options,
+                {
+                  id: new Date().getTime(),
+                  name: "other",
+                },
+              ],
+            }))
+          );
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       } else {
-        console.error("any error");
+        console.error("Any error");
       }
     },
     []
   );
 
-  const handleCatOptionsChange = useCallback(
-    (event: React.SyntheticEvent, value: Category | null) => {
-      console.log("Selected value is ", value);
-    },
-    []
-  );
+  const handleSubmit = () => {
+    console.log("Submitted!");
+    // Handle form submission here
+  };
+
   return (
     <main className="flex min-h-screen flex-row items-start justify-center p-24 gap-5 bg-[#F6F4F5] text-black shadow-2xl h-full">
       <div className="px-4 w-2/4 border border-yellow-400-100 bg-white p-5 flex flex-col justify-center items-center gap-5 rounded-xl">
@@ -101,29 +110,29 @@ export default function Home() {
         <Select
           className="w-full"
           value={selectedCategory}
-          onChange={(selectedOption) =>
-            handleSubCategoryChange(selectedOption as Category)
-          }
+          onChange={handleAutocompleteChange}
           options={categories.map((category) => ({
             value: category,
             label: category.name,
           }))}
         />
-        <div className="capitalize">Select a sub-category</div>
-        <Select
-          className="w-full"
-          isMulti
-          value={selectedSubCategories}
-          onChange={(selectedOptions) =>
-            handleSubCategoryChange(selectedOptions as Category[])
-          }
-          options={subCategories.map((subcategory) => ({
-            value: subcategory.id,
-            label: subcategory.name,
-            children: subcategory.children,
-          }))}
-        />
-        {selectedCategory && selectedSubCategories.length > 0 && (
+        {subCatData && (
+          <>
+            <div className="capitalize">Select a sub-category</div>
+            <Select
+              className="w-full"
+              isMulti
+              value={selectedSubCategories}
+              onChange={(options) => setSelectedSubCategories(options)}
+              options={subCatData.map((subcategory) => ({
+                value: subcategory.id,
+                label: subcategory.name,
+                children: subcategory.children,
+              }))}
+            />
+          </>
+        )}
+        {selectedSubCategories.length > 0 && (
           <>
             <div className="capitalize">Select options</div>
             <Select
@@ -131,7 +140,7 @@ export default function Home() {
               isMulti
               value={selectedOptions}
               onChange={setSelectedOptions}
-              options={options.map((option) => ({
+              options={subCatOptions.map((option) => ({
                 value: option.id,
                 label: option.name,
               }))}
@@ -139,8 +148,7 @@ export default function Home() {
           </>
         )}
         <button
-          onClick={()=>console.log("done");
-          }
+          onClick={handleSubmit}
           className="border border-gray-500 w-1/4 h-10 rounded-xl bg-[#F6F4F5]"
         >
           Submit
