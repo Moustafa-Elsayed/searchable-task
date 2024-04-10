@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect,useCallback } from "react";
 import Select from "react-select";
 import axios from "axios";
@@ -101,7 +102,7 @@ export default function Home() {
           className="w-full"
           value={selectedCategory}
           onChange={(selectedOption) =>
-            handleCategoryChange(selectedOption as Category)
+            handleSubCategoryChange(selectedOption as Category)
           }
           options={categories.map((category) => ({
             value: category,
@@ -138,7 +139,8 @@ export default function Home() {
           </>
         )}
         <button
-          onClick={handleSubmit}
+          onClick={()=>console.log("done");
+          }
           className="border border-gray-500 w-1/4 h-10 rounded-xl bg-[#F6F4F5]"
         >
           Submit
