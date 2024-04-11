@@ -12,6 +12,7 @@ import {
 import Autocomplete from "@mui/material/Autocomplete";
 import axios from "axios";
 import { Private_Key, Url } from "@/api";
+import {  TableData } from "@/components/TableData";
 
 interface Category {
   id: number;
@@ -136,6 +137,7 @@ export default function Home({ mainCategoryData }: Props) {
         <div className="capitalize text-black text-center font-bold">
           Searchable dropdown menu
         </div>
+        <TableData/>
       </div>
       <div className="flex min-h-screen flex-row items-start justify-center p-24 gap-5  text-black shadow-2xl h-full">
         <div className="px-4 w-2/4 border border-yellow-400 bg-white p-5 flex flex-col justify-center items-center gap-5 rounded-xl">
@@ -225,38 +227,38 @@ export default function Home({ mainCategoryData }: Props) {
         </div>
 
         <div className="px-4 w-2/4">
-  {showTable && (
-    <TableContainer
-      component={Paper}
-      className="bg-white rounded-xl shadow-md"
-    >
-      <Table className="min-w-max">
-        <TableHead className="bg-gray-200">
-          <TableRow>
-            <TableCell className="py-3 px-6 text-left">ID</TableCell>
-            <TableCell className="py-3 px-6 text-left">Name</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {selectedValues.map((row, index) => (
-            <TableRow
-              key={index}
-              className={index % 2 === 0 ? "bg-gray-100" : ""}
+          {showTable && (
+            <TableContainer
+              component={Paper}
+              className="bg-white rounded-xl shadow-md"
             >
-              <TableCell className="py-3 px-6">{row.key}</TableCell>
-              <TableCell className="py-3 px-6">
-                {typeof row.value === "object"
-                  ? row.value.name
-                  : row.value}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  )}
-</div>
+              <Table className="min-w-max">
+                <TableHead className="bg-gray-200">
+                  <TableRow>
+                    <TableCell className="py-3 px-6 text-left">ID</TableCell>
+                    <TableCell className="py-3 px-6 text-left">Name</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedValues.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      className={index % 2 === 0 ? "bg-gray-100" : ""}
+                    >
+                      <TableCell className="py-3 px-6">{row.key}</TableCell>
+                      <TableCell className="py-3 px-6">
+                        {typeof row.value === "object"
+                          ? row.value.name
+                          : row.value}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
 
+        </div>
       </div>
     </main>
   );
