@@ -44,7 +44,7 @@ export default function Home({ mainCategoryData }: Props) {
   const [subCatData, setSubCatData] = useState<Category[] | null>(null);
   const [subCatOptions, setSubCatOptions] = useState<SubCatOption[]>([]);
   const [additionalInputValue, setAdditionalInputValue] = useState("");
-  const [showTable, setShowTable] = useState(false); // State variable to track table visibility
+  const [showTable, setShowTable] = useState(false); 
 
   const filterOptions = useCallback(
     (options: Category[], { inputValue }: { inputValue: string }) =>
@@ -110,7 +110,7 @@ export default function Home({ mainCategoryData }: Props) {
     const selectedData = selectedValues.map((value) => ({
       key: value.key,
       name: value.value.name,
-      ...value.value, // Include all properties of the selected value
+      ...value.value, 
     }));
     console.log("Submitted:", selectedData);
     setShowTable(true);
@@ -132,135 +132,129 @@ export default function Home({ mainCategoryData }: Props) {
   }, [additionalInputValue]);
 
   return (
-    <main className="bg-[#F6F4F5]">
-      <div className="flex justify-center pt-7">
-        <div className="capitalize text-black text-center font-bold">
-          Searchable dropdown menu
-        </div>
-        <TableData/>
-      </div>
-      <div className="flex min-h-screen flex-row items-start justify-center p-24 gap-5  text-black shadow-2xl h-full">
-        <div className="px-4 w-2/4 border border-yellow-400 bg-white p-5 flex flex-col justify-center items-center gap-5 rounded-xl">
-          <div className="flex flex-col items-center mt-8">
-            <div className="flex items-center mb-4">
-              <label htmlFor="first-movie" className="mr-1 text-black">
-                Select Category
-              </label>
-              <span className="text-red-500">*</span>
+    <main className="bg-[#F6F4F5] min-h-screen">
+    <div className="flex flex-col md:flex-row items-start justify-center p-4 md:p-8 lg:p-12 gap-5 text-black">
+        <div className="flex flex-col md:w-2/4 lg:w-1/3 border border-yellow-400 bg-white p-5 rounded-xl">
+            <div className="flex flex-col items-center">
+                <div className="flex items-center mb-4">
+                    <label htmlFor="first-movie" className="mr-1 text-black">
+                        Select Category
+                    </label>
+                    <span className="text-red-500">*</span>
+                </div>
+                <Autocomplete
+                    disablePortal
+                    options={mainCategoryData?.categories}
+                    sx={{ width: 300 }}
+                    getOptionLabel={(option) => option.name}
+                    filterOptions={filterOptions}
+                    renderInput={(params) => (
+                        <TextField {...params} label="Main Category" />
+                    )}
+                    onChange={handleAutocompleteChange}
+                />
+                <div className="flex items-center mt-4">
+                    <label htmlFor="second-movie" className="mr-1 text-black">
+                        Sub Category
+                    </label>
+                    <span className="text-red-500">*</span>
+                </div>
+                <Autocomplete
+                    disablePortal
+                    options={subCatData || []}
+                    sx={{ width: 300 }}
+                    getOptionLabel={(option) => option.name}
+                    filterOptions={filterOptions}
+                    renderInput={(params) => (
+                        <TextField {...params} label="Sub Category" />
+                    )}
+                    onChange={handleSubCategoryChange}
+                />
+                <div className="mt-4 mb-8">
+                    {subCatOptions.length > 0 && (
+                        <>
+                            {subCatOptions.map((item) => (
+                                <div className="mt-2" key={item.id}>
+                                    <label htmlFor="first-movie" className="mr-1 text-black">
+                                        {item?.name}
+                                    </label>
+                                    <Autocomplete
+                                        disablePortal
+                                        options={item?.options}
+                                        sx={{ width: 300 }}
+                                        getOptionLabel={(option) => option.name}
+                                        filterOptions={filterOptions}
+                                        renderInput={(params) => (
+                                            <>
+                                                <TextField {...params} />
+                                                {params.inputProps?.value === "other" && (
+                                                    <TextField
+                                                        id="additional-input"
+                                                        label="Additional Input"
+                                                        variant="outlined"
+                                                        value={additionalInputValue}
+                                                        onChange={handleAdditionalInputChange}
+                                                    />
+                                                )}
+                                            </>
+                                        )}
+                                        onChange={(event, value) => {
+                                            setSelectedValues((prevValues) => [
+                                                ...prevValues,
+                                                { key: item.name, value },
+                                            ]);
+                                            handleCatOptionsChange(event, value);
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </>
+                    )}
+                </div>
             </div>
-            <Autocomplete
-              disablePortal
-              options={mainCategoryData?.categories}
-              sx={{ width: 300 }}
-              getOptionLabel={(option) => option.name}
-              filterOptions={filterOptions}
-              renderInput={(params) => (
-                <TextField {...params} label="Main Category" />
-              )}
-              onChange={handleAutocompleteChange}
-            />
-            <div className="flex items-center mt-4">
-              <label htmlFor="second-movie" className="mr-1 text-black">
-                Sub Category{" "}
-              </label>
-              <span className="text-red-500">*</span>
-            </div>
-            <Autocomplete
-              disablePortal
-              options={subCatData || []}
-              sx={{ width: 300 }}
-              getOptionLabel={(option) => option.name}
-              filterOptions={filterOptions}
-              renderInput={(params) => (
-                <TextField {...params} label="Sub Category" />
-              )}
-              onChange={handleSubCategoryChange}
-            />
-            <div className="mt-4 mb-8">
-              {subCatOptions.length > 0 && (
-                <>
-                  {subCatOptions.map((item) => (
-                    <div className="mt-2" key={item.id}>
-                      <label htmlFor="first-movie" className="mr-1 text-black">
-                        {item?.name}
-                      </label>
-                      <Autocomplete
-                        disablePortal
-                        options={item?.options}
-                        sx={{ width: 300 }}
-                        getOptionLabel={(option) => option.name}
-                        filterOptions={filterOptions}
-                        renderInput={(params) => (
-                          <>
-                            <TextField {...params} />
-                            {params.inputProps?.value === "other" && (
-                              <TextField
-                                id="additional-input"
-                                label="Additional Input"
-                                variant="outlined"
-                                value={additionalInputValue}
-                                onChange={handleAdditionalInputChange}
-                              />
-                            )}
-                          </>
-                        )}
-                        onChange={(event, value) => {
-                          setSelectedValues((prevValues) => [
-                            ...prevValues,
-                            { key: item.name, value },
-                          ]);
-                          handleCatOptionsChange(event, value);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={handleSubmit}
-            className="border border-gray-500 w-1/4 h-10 rounded-xl bg-gray-100 hover:bg-gray-200"
-          >
-            Submit
-          </button>
-        </div>
-
-        <div className="px-4 w-2/4">
-          {showTable && (
-            <TableContainer
-              component={Paper}
-              className="bg-white rounded-xl shadow-md"
+            <button
+                onClick={handleSubmit}
+                className="border border-gray-500 w-full md:w-1/2 h-10 rounded-xl bg-gray-100 hover:bg-gray-200"
             >
-              <Table className="min-w-max">
-                <TableHead className="bg-gray-200">
-                  <TableRow>
-                    <TableCell className="py-3 px-6 text-left">ID</TableCell>
-                    <TableCell className="py-3 px-6 text-left">Name</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {selectedValues.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      className={index % 2 === 0 ? "bg-gray-100" : ""}
-                    >
-                      <TableCell className="py-3 px-6">{row.key}</TableCell>
-                      <TableCell className="py-3 px-6">
-                        {typeof row.value === "object"
-                          ? row.value.name
-                          : row.value}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-
+                Submit
+            </button>
         </div>
-      </div>
-    </main>
+
+        <div className="flex flex-col md:w-2/4 lg:w-2/3">
+            {showTable && (
+                <TableContainer
+                    component={Paper}
+                    className="bg-white rounded-xl shadow-md"
+                >
+                    <Table className="min-w-max">
+                        <TableHead className="bg-gray-200">
+                            <TableRow>
+                                <TableCell className="py-3 px-6 text-left">ID</TableCell>
+                                <TableCell className="py-3 px-6 text-left">Name</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {selectedValues.map((row, index) => (
+                                <TableRow
+                                    key={index}
+                                    className={index % 2 === 0 ? "bg-gray-100" : ""}
+                                >
+                                    <TableCell className="py-3 px-6">{row.key}</TableCell>
+                                    <TableCell className="py-3 px-6">
+                                        {typeof row.value === "object"
+                                            ? row.value.name
+                                            : row.value}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
+        </div>
+    </div>
+</main>
+
   );
 }
 
