@@ -12,7 +12,6 @@ import {
 import Autocomplete from "@mui/material/Autocomplete";
 import axios from "axios";
 import { Private_Key, Url } from "@/api";
-import {  TableData } from "@/components/TableData";
 
 interface Category {
   id: number;
@@ -108,13 +107,14 @@ export default function Home({ mainCategoryData }: Props) {
 
   const handleSubmit = () => {
     const selectedData = selectedValues.map((value) => ({
-      key: value.key,
-      name: value.value.name,
-      ...value.value, 
+        key: value.key,
+        name: value.value.name,
+        ...value.value, 
     }));
     console.log("Submitted:", selectedData);
     setShowTable(true);
-  };
+};
+
 
   const handleAdditionalInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -214,13 +214,13 @@ export default function Home({ mainCategoryData }: Props) {
             </div>
             <button
                 onClick={handleSubmit}
-                className="border border-gray-500 w-full md:w-1/2 h-10 rounded-xl bg-gray-100 hover:bg-gray-200"
+                className="border border-gray-500 w-full  h-10 rounded-xl bg-gray-100 hover:bg-gray-200"
             >
                 Submit
             </button>
         </div>
 
-        <div className="flex flex-col md:w-2/4 lg:w-2/3">
+        <div className="flex flex-col  lg:w-2/4">
             {showTable && (
                 <TableContainer
                     component={Paper}
