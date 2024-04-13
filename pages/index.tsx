@@ -220,7 +220,7 @@ export default function Home({ mainCategoryData }: Props) {
             </button>
         </div>
 
-        <div className="flex flex-col  lg:w-2/4">
+        <div className="flex flex-col w-1/2 lg:w-2/4">
             {showTable && (
                 <TableContainer
                     component={Paper}
